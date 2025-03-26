@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengelolaan Data Toko Kelontong</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-image: url('tokoh.png'); /* Ganti dengan URL gambar Anda */
+      background-size: cover; /* Menyesuaikan gambar agar menutupi seluruh layar */
+      background-position: center; /* Memposisikan gambar di tengah */
+    }
+    
+    /* CSS animation for the title */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      color: #07f51f;
+      text-align: center; /* Center the title */
+      font-size: 36px;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .form-container {
+      margin-bottom: 20px;
+      background-color: rgba(255, 255, 255, 0.8); /* Membuat latar belakang form transparan */
+      padding: 15px;
+      border-radius: 8px;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    /* Set background color to white for the report sections */
+    #stockReport, #customerReport, #salesReport {
+      background-color: white; /* Make the report background white */
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    #stockTable, #customerTable, #salesTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>TOKOH FADIL</h1>
+
+  <!-- Form Entri Data Produk -->
+  <div class="form-container">
+    <h2>Entri Data Produk</h2>
+    <input type="text" id="productName" placeholder="Nama Produk">
+    <input type="number" id="productPrice" placeholder="Harga Produk" min="0">
+    <input type="number" id="productStock" placeholder="Stok Produk" min="0">
+    <button onclick="addProduct()">Tambah Produk</button>
+  </div>
+
+  <!-- Form Entri Data Pelanggan -->
+  <div class="form-container">
+    <h2>Entri Data Pelanggan</h2>
+    <input type="text" id="customerName" placeholder="Nama Pelanggan">
+    <button onclick="addCustomer()">Tambah Pelanggan</button>
+  </div>
+
+  <!-- Form Entri Transaksi Penjualan -->
+  <div class="form-container">
+    <h2>Entri Transaksi Penjualan</h2>
+    <select id="transactionProduct">
+      <option value="">Pilih Produk</option>
+    </select>
+    <input type="number" id="transactionQuantity" placeholder="Jumlah Produk" min="1">
+    <button onclick="addTransaction()">Tambah Transaksi</button>
+  </div>
+
+  <!-- Laporan -->
+  <div class="form-container">
+    <h2>Laporan Stok</h2>
+    <button onclick="viewStock()">Lihat Stok</button>
+  </div>
+
+  <div class="form-container">
+    <h2>Laporan Data Pelanggan</h2>
+    <button onclick="viewCustomers()">Lihat Pelanggan</button>
+  </div>
+
+  <div class="form-container">
+    <h2>Laporan Penjualan</h2>
+    <button onclick="viewSales()">Lihat Penjualan</button>
+  </div>
+
+  <!-- Tabel untuk Menampilkan Laporan Stok -->
+  <div id="stockReport">
+    <table id="stockTable">
+      <thead>
+        <tr>
+          <th>Nama Produk</th>
+          <th>Harga</th>
+          <th>Stok</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Tabel untuk Menampilkan Laporan Data Pelanggan -->
+  <div id="customerReport">
+    <table id="customerTable">
+      <thead>
+        <tr>
+          <th>Nama Pelanggan</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Tabel untuk Menampilkan Laporan Penjualan -->
+  <div id="salesReport">
+    <table id="salesTable">
+      <thead>
+        <tr>
+          <th>Nama Produk</th>
+          <th>Jumlah</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Data Produk, Pelanggan, dan Transaksi
+    let products = [];
+    let customers = [];
+    let transactions = [];
+    
+    // Menambahkan Produk
+    function addProduct() {
+      const name = document.getElementById('productName').value;
+      const price = parseFloat(document.getElementById('productPrice').value);
+      const stock = parseInt(document.getElementById('productStock').value);
+
+      if (name && !isNaN(price) && !isNaN(stock)) {
+        products.push({ name, price, stock });
+        alert('Produk berhasil ditambahkan');
+        updateProductSelect();
+      } else {
+        alert('Masukkan data yang valid');
+      }
+
+      // Clear input fields
+      document.getElementById('productName').value = '';
+      document.getElementById('productPrice').value = '';
+      document.getElementById('productStock').value = '';
+    }
+
+    // Menambahkan Pelanggan
+    function addCustomer() {
+      const name = document.getElementById('customerName').value;
+
+      if (name) {
+        customers.push({ name });
+        alert('Pelanggan berhasil ditambahkan');
+      } else {
+        alert('Masukkan nama pelanggan');
+      }
+
+      // Clear input field
+      document.getElementById('customerName').value = '';
+    }
+
+    // Menambahkan Transaksi Penjualan
+    function addTransaction() {
+      const product = document.getElementById('transactionProduct').value;
+      const quantity = parseInt(document.getElementById('transactionQuantity').value);
+
+      if (product && !isNaN(quantity) && quantity > 0) {
+        const productData = products.find(p => p.name === product);
+        if (productData && productData.stock >= quantity) {
+          productData.stock -= quantity; // Update stock
+          transactions.push({ product, quantity, total: productData.price * quantity });
+          alert('Transaksi berhasil');
+        } else {
+          alert('Stok tidak mencukupi');
+        }
+      } else {
+        alert('Masukkan data yang valid');
+      }
+
+      // Clear input fields
+      document.getElementById('transactionQuantity').value = '';
+    }
+
+    // Mengupdate Dropdown Produk
+    function updateProductSelect() {
+      const select = document.getElementById('transactionProduct');
+      select.innerHTML = '<option value="">Pilih Produk</option>';
+      products.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.name;
+        option.textContent = p.name;
+        select.appendChild(option);
+      });
+    }
+
+    // Melihat Laporan Stok
+    function viewStock() {
+      const tbody = document.getElementById('stockTable').querySelector('tbody');
+      tbody.innerHTML = '';
+      products.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${p.name}</td><td>${p.price}</td><td>${p.stock}</td>`;
+        tbody.appendChild(row);
+      });
+      document.getElementById('stockReport').style.display = 'block';
+      document.getElementById('customerReport').style.display = 'none';
+      document.getElementById('salesReport').style.display = 'none';
+    }
+
+    // Melihat Laporan Pelanggan
+    function viewCustomers() {
+      const tbody = document.getElementById('customerTable').querySelector('tbody');
+      tbody.innerHTML = '';
+      customers.forEach(c => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${c.name}</td>`;
+        tbody.appendChild(row);
+      });
+      document.getElementById('stockReport').style.display = 'none';
+      document.getElementById('customerReport').style.display = 'block';
+      document.getElementById('salesReport').style.display = 'none';
+    }
+
+    // Melihat Laporan Penjualan
+    function viewSales() {
+      const tbody = document.getElementById('salesTable').querySelector('tbody');
+      tbody.innerHTML = '';
+      transactions.forEach(t => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${t.product}</td><td>${t.quantity}</td><td>${t.total}</td>`;
+        tbody.appendChild(row);
+      });
+      document.getElementById('stockReport').style.display = 'none';
+      document.getElementById('customerReport').style.display = 'none';
+      document.getElementById('salesReport').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
